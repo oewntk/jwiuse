@@ -1,7 +1,7 @@
 package org.jwi.use;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,7 +16,7 @@ public class TestSensekeys
 
 	private static JWI jwi;
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws IOException
 	{
 		String wnHome = System.getProperty("SOURCE");
