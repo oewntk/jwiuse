@@ -4,9 +4,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class JWICrossTests
 {
+	private static final boolean VERBOSE = !System.getProperties().containsKey("SILENT");
+
+	private static final PrintStream PS = VERBOSE ? System.out : new PrintStream(new OutputStream()
+	{
+		public void write(int b)
+		{
+			//DO NOTHING
+		}
+	});
+
 	private static String word;
 
 	private static JWI jwi1;
@@ -32,22 +44,22 @@ public class JWICrossTests
 	@Test
 	public void walkWord1()
 	{
-		System.out.println(jwi1.wnHome);
-		jwi1.walk(word);
+		PS.println(jwi1.wnHome);
+		jwi1.walk(word, PS);
 	}
 
 	@Test
 	public void walkWord2()
 	{
-		System.out.println(jwi2.wnHome);
-		jwi2.walk(word);
+		PS.println(jwi2.wnHome);
+		jwi2.walk(word, PS);
 	}
 
 	private void walk2(String lemma)
 	{
-		System.out.println(jwi1.wnHome);
-		jwi1.walk(lemma);
+		PS.println(jwi1.wnHome);
+		jwi1.walk(lemma, PS);
 		System.out.println(jwi2.wnHome);
-		jwi2.walk(lemma);
+		jwi2.walk(lemma, PS);
 	}
 }

@@ -12,6 +12,8 @@ import edu.mit.jwi.item.IWord;
 
 public class JWITryIterateTests
 {
+	// private static final boolean verbose = !System.getProperties().containsKey("SILENT");
+
 	private static JWI jwi;
 
 	@BeforeAll

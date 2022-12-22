@@ -1,6 +1,7 @@
 package org.jwi.use;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,8 +11,11 @@ import edu.mit.jwi.item.ISenseKey;
 import edu.mit.jwi.item.ISynset;
 import edu.mit.jwi.item.IWord;
 
+@Disabled
 public class JWIIterateTests
 {
+	// private static final boolean verbose = !System.getProperties().containsKey("SILENT");
+
 	private static JWI jwi;
 
 	@BeforeAll

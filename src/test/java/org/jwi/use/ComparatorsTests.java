@@ -2,80 +2,124 @@ package org.jwi.use;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ComparatorsTests
 {
-	static private final String[] elements = {"aborigine1", "aborigine2", "Aborigine1", "Aborigine2"};
+	private static final boolean VERBOSE = !System.getProperties().containsKey("SILENT");
+
+	private static final PrintStream PS = VERBOSE ? System.out : new PrintStream(new OutputStream()
+	{
+		public void write(int b)
+		{
+			//DO NOTHING
+		}
+	});
+
+	static private final String[] elements1 = {"aborigine1", "aborigine2", "Aborigine1", "Aborigine2"};
 	static private final String[] elements2 = {"Aborigine1", "Aborigine2", "aborigine1", "aborigine2"};
 	static private final String[] elements3 = {"aborigine1", "Aborigine2", "Aborigine1", "aborigine2"};
 	static private final String[] elements4 = {"Aborigine1", "aborigine2", "aborigine1", "Aborigine2"};
 
+	static private final String[] expectedIC = new String[]{ //
+			"aborigine1", "aborigine2"}; // compareToIgnoreCase
+	static private final String[] expectedIC2 = new String[]{ //
+			"Aborigine1", "Aborigine2"}; // compareToIgnoreCase
+	static private final String[] expectedIC3 = new String[]{ //
+			"aborigine1", "Aborigine2"}; // compareToIgnoreCase
+
+	static private final String[] expectedIC4 = new String[]{ //
+			"Aborigine1", "aborigine2"}; // compareToIgnoreCase
+
+	static private final String[][] expected = new String[][]{ //
+			{"Aborigine1", "Aborigine2", "aborigine1", "aborigine2"}, // compareTo
+			{"Aborigine1", "aborigine1", "Aborigine2", "aborigine2"}, // cmpLOUpperFirst
+			{"aborigine1", "Aborigine1", "aborigine2", "Aborigine2"} // cmpLOLowerFirst
+	};
+
 	@Test
 	public void test1()
 	{
-		testSeries(elements);
+		testSeries(elements1, expectedIC, expected);
 	}
 
 	@Test
 	public void test2()
 	{
-		testSeries(elements2);
+		testSeries(elements2, expectedIC2, expected);
 	}
 
 	@Test
 	public void test3()
 	{
-		testSeries(elements3);
+		testSeries(elements3, expectedIC3, expected);
 	}
 
 	@Test
 	public void test4()
 	{
-		testSeries(elements4);
+		testSeries(elements4, expectedIC4, expected);
 	}
 
-	public static void testSeries(String[] elements)
+	public static void testSeries(String[] elements, String[] expectedIC, String[][] expected)
 	{
-		System.out.printf("INPUT %s%n", Arrays.toString(elements));
-		System.out.println("compareToIgnoreCase");
-		Set<String> set1 = generate(String::compareToIgnoreCase, elements);
-		forAll(set1, String::toString);
+		PS.printf("INPUT %s%n", Arrays.toString(elements));
 
-		System.out.println("compareTo");
-		Set<String> set2 = generate(String::compareTo, elements);
-		forAll(set2, String::toString);
+		SortedSet<String> set1 = generate(String::compareToIgnoreCase, elements);
+		PS.println("compareToIgnoreCase");
+		PS.printf("\tout\t%s%n", Arrays.toString(set1.toArray()));
+		PS.printf("\texp\t%s%n", Arrays.toString(expectedIC));
+		assertStreamEquals(Arrays.stream(expectedIC), set1.stream());
 
-		System.out.println("cmpLOUpperFirst");
-		Set<String> set3 = generate(Comparators.cmpLOUpperFirst, elements);
-		forAll(set3, String::toString);
+		SortedSet<String> set2 = generate(String::compareTo, elements);
+		PS.println("compareTo");
+		PS.printf("\tout\t%s%n", Arrays.toString(set2.toArray()));
+		PS.printf("\texp\t%s%n", Arrays.toString(expected[0]));
+		assertStreamEquals(Arrays.stream(expected[0]), set2.stream());
 
-		System.out.println("cmpLOLowerFirst");
-		Set<String> set4 = generate(Comparators.cmpLOLowerFirst, elements);
-		forAll(set4, String::toString);
-		System.out.println();
+		SortedSet<String> set3 = generate(Comparators.cmpLOUpperFirst, elements);
+		PS.println("cmpLOUpperFirst");
+		PS.printf("\tout\t%s%n", Arrays.toString(set3.toArray()));
+		PS.printf("\texp\t%s%n", Arrays.toString(expected[1]));
+		assertStreamEquals(Arrays.stream(expected[1]), set3.stream());
+
+		SortedSet<String> set4 = generate(Comparators.cmpLOLowerFirst, elements);
+		PS.println("cmpLOLowerFirst");
+		PS.printf("\tout\t%s%n", Arrays.toString(set4.toArray()));
+		PS.printf("\texp\t%s%n", Arrays.toString(expected[2]));
+		assertStreamEquals(Arrays.stream(expected[2]), set4.stream());
+
+		PS.println();
 	}
 
-	static Set<String> generate(Comparator<String> cmp, String... items)
+	static SortedSet<String> generate(Comparator<String> cmp, String... items)
 	{
 		//System.out.printf("\tin\t%s%n", Arrays.toString(items));
-		Set<String> set = new TreeSet<>(cmp);
+		SortedSet<String> set = new TreeSet<>(cmp);
 		set.addAll(Arrays.asList(items));
 		set.addAll(Arrays.asList(items)); // again
 		return set;
 	}
 
-	static <A, R> void forAll(Set<A> set, Function<A, R> f)
+	static <A, R> String forAll(Set<A> set, Function<A, R> f)
 	{
-		//System.out.printf("\tout\t%s%n", Arrays.toString(set.toArray()));
-		for (A item : set)
+		return set.stream().map(f).map(s -> "\t" + s).collect(Collectors.joining("\n"));
+	}
+
+	static void assertStreamEquals(Stream<?> s1, Stream<?> s2)
+	{
+		Iterator<?> iter1 = s1.iterator(), iter2 = s2.iterator();
+		while (iter1.hasNext() && iter2.hasNext())
 		{
-			R r = f.apply(item);
-			System.out.printf("\t%s%n", r);
+			assertEquals(iter1.next(), iter2.next());
 		}
+		assert !iter1.hasNext() && !iter2.hasNext();
 	}
 }

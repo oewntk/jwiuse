@@ -73,7 +73,14 @@
 						</property>
 						<property>
 							<name>SOURCE2</name>
-							<value>${project.basedir}/wndb2</value>
+							<value>${project.basedir}/wndb31</value>
+						</property>
+						<property>
+							<name>WORD</name>
+							<value>love</value>
+						</property>
+						<property>
+							<name>SILENT</name>
 						</property>
 					</systemProperties>
 				</configuration>

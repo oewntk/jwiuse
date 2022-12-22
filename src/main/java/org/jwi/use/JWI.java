@@ -2,6 +2,7 @@ package org.jwi.use;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -477,71 +478,71 @@ public class JWI
 
 	// T R E E   E X P L O R A T I O N S
 
-	public void walk(final String lemma)
+	public void walk(final String lemma, final PrintStream ps)
 	{
 		for (final POS pos : POS.values())
 		{
-			walk(lemma, pos);
+			walk(lemma, pos, ps);
 		}
 	}
 
-	public void walk(final String lemma, final POS pos)
+	public void walk(final String lemma, final POS pos, final PrintStream ps)
 	{
 		// a line in an index file
 		final IIndexWord idx = this.dict.getIndexWord(lemma, pos);
 		if (idx != null)
 		{
 			// index
-			System.out.println();
-			System.out.println("================================================================================");
-			System.out.println("■ pos = " + pos.name());
-			// System.out.println("lemma = " + idx.getLemma());
-			walk(idx);
+			ps.println();
+			ps.println("================================================================================");
+			ps.println("■ pos = " + pos.name());
+			// ps.println("lemma = " + idx.getLemma());
+			walk(idx, ps);
 		}
 	}
 
-	public void walk(final IIndexWord idx)
+	public void walk(final IIndexWord idx, final PrintStream ps)
 	{
 		Set<IPointer> pointers = idx.getPointers();
 		for (IPointer ptr : pointers)
 		{
-			System.out.println("has relation = " + ptr.toString());
+			ps.println("has relation = " + ptr.toString());
 		}
 
 		// senseid=(lemma, synsetid, sensenum)
 		final List<IWordID> senseids = idx.getWordIDs();
 		for (final IWordID senseid : senseids) // synset id, sense number, and lemma
 		{
-			walk(senseid);
+			walk(senseid, ps);
 		}
 	}
 
-	public void walk(final IWordID senseid)
+	public void walk(final IWordID senseid, final PrintStream ps)
 	{
-		System.out.println("--------------------------------------------------------------------------------");
-		//System.out.println("senseid = " + senseid.toString());
+		ps.println("--------------------------------------------------------------------------------");
+		//ps.println("senseid = " + senseid.toString());
 
 		// sense=(senseid, lexid, sensekey, synset)
 		IWord sense = this.dict.getWord(senseid);
-		walk(sense);
+		walk(sense, ps);
 
 		// synset
 		final ISynsetID synsetid = senseid.getSynsetID();
 		final ISynset synset = this.dict.getSynset(synsetid);
-		System.out.printf("● synset = %s%n", toString(synset));
+		ps.printf("● synset = %s%n", toString(synset));
 
-		walk(synset, 1);
+		walk(synset, 1, ps);
 	}
 
-	public void walk(final IWord sense)
+	public void walk(final IWord sense, final PrintStream ps)
 	{
-		System.out.printf("● sense: %s lexid: %d sensekey: %s%n", sense.toString(), sense.getLexicalID(), sense.getSenseKey());
+		ps.printf("● sense: %s lexid: %d sensekey: %s%n", sense.toString(), sense.getLexicalID(), sense.getSenseKey());
 
 		// adj marker
 		AdjMarker marker = sense.getAdjectiveMarker();
 		if (marker != null)
 		{
-			System.out.println("  marker = " + marker);
+			ps.println("  marker = " + marker);
 		}
 
 		// sensekey
@@ -555,16 +556,16 @@ public class JWI
 
 		// lexical relations
 		Map<IPointer, List<IWordID>> relatedMap = sense.getRelatedMap();
-		walk(relatedMap);
+		walk(relatedMap, ps);
 
 		// verb frames
 		List<IVerbFrame> verbFrames = sense.getVerbFrames();
-		walk(verbFrames, sense.getLemma());
+		walk(verbFrames, sense.getLemma(), ps);
 
-		System.out.printf("  sensenum: %s tag cnt:%s%n", senseEntry == null ? "<missing>" : senseEntry.getSenseNumber(), senseEntry == null ? "<missing>" : senseEntry.getTagCount());
+		ps.printf("  sensenum: %s tag cnt:%s%n", senseEntry == null ? "<missing>" : senseEntry.getSenseNumber(), senseEntry == null ? "<missing>" : senseEntry.getTagCount());
 	}
 
-	public void walk(final Map<IPointer, List<IWordID>> relatedMap)
+	public void walk(final Map<IPointer, List<IWordID>> relatedMap, final PrintStream ps)
 	{
 		if (relatedMap != null)
 		{
@@ -574,58 +575,58 @@ public class JWI
 				for (IWordID relatedId : entry.getValue())
 				{
 					IWord related = this.dict.getWord(relatedId);
-					System.out.printf("  related %s lemma:%s synset:%s%n", pointer, related.getLemma(), related.getSynset().toString());
+					ps.printf("  related %s lemma:%s synset:%s%n", pointer, related.getLemma(), related.getSynset().toString());
 				}
 			}
 		}
 	}
 
-	public void walk(final List<IVerbFrame> verbFrames, final String lemma)
+	public void walk(final List<IVerbFrame> verbFrames, final String lemma, final PrintStream ps)
 	{
 		if (verbFrames != null)
 		{
 			for (IVerbFrame verbFrame : verbFrames)
 			{
-				System.out.printf("  verb frame: %s : %s%n", verbFrame.getTemplate(), verbFrame.instantiateTemplate(lemma));
+				ps.printf("  verb frame: %s : %s%n", verbFrame.getTemplate(), verbFrame.instantiateTemplate(lemma));
 			}
 		}
 	}
 
-	public void walk(final ISynset synset, final int level)
+	public void walk(final ISynset synset, final int level, final PrintStream ps)
 	{
 		final String indentSpace = new String(new char[level]).replace('\0', '\t');
 		final Map<IPointer, List<ISynsetID>> links = synset.getRelatedMap();
 		for (final IPointer p : links.keySet())
 		{
-			System.out.printf("%s🡆 %s%n", indentSpace, p.getName());
+			ps.printf("%s🡆 %s%n", indentSpace, p.getName());
 			final List<ISynsetID> relations2 = links.get(p);
-			walk(relations2, p, level);
+			walk(relations2, p, level, ps);
 		}
 	}
 
-	public void walk(final List<ISynsetID> relations2, final IPointer p, final int level)
+	public void walk(final List<ISynsetID> relations2, final IPointer p, final int level, final PrintStream ps)
 	{
 		final String indentSpace = new String(new char[level]).replace('\0', '\t');
 		for (final ISynsetID synsetid2 : relations2)
 		{
 			final ISynset synset2 = this.dict.getSynset(synsetid2);
-			System.out.printf("%s%s%n", indentSpace, toString(synset2));
+			ps.printf("%s%s%n", indentSpace, toString(synset2));
 
-			walk(synset2, p, level + 1);
+			walk(synset2, p, level + 1, ps);
 		}
 	}
 
-	public void walk(final ISynset synset, final IPointer p, final int level)
+	public void walk(final ISynset synset, final IPointer p, final int level, final PrintStream ps)
 	{
 		final String indentSpace = new String(new char[level]).replace('\0', '\t');
 		final List<ISynsetID> relations2 = synset.getRelatedSynsets(p);
 		for (final ISynsetID synsetid2 : relations2)
 		{
 			final ISynset synset2 = this.dict.getSynset(synsetid2);
-			System.out.printf("%s%s%n", indentSpace, toString(synset2));
+			ps.printf("%s%s%n", indentSpace, toString(synset2));
 			if (canRecurse(p))
 			{
-				walk(synset2, p, level + 1);
+				walk(synset2, p, level + 1, ps);
 			}
 		}
 	}
@@ -689,6 +690,6 @@ public class JWI
 	{
 		final String wnHome = args[0];
 		final String lemma = args[1];
-		new JWI(wnHome).walk(lemma);
+		new JWI(wnHome).walk(lemma, System.out);
 	}
 }
