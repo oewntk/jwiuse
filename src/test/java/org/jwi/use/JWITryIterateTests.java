@@ -10,7 +10,7 @@ import edu.mit.jwi.item.ISenseKey;
 import edu.mit.jwi.item.ISynset;
 import edu.mit.jwi.item.IWord;
 
-public class TestJWITryIterate
+public class JWITryIterateTests
 {
 	private static JWI jwi;
 
@@ -22,21 +22,21 @@ public class TestJWITryIterate
 	}
 
 	@Test
-	public void iterateLemmas() throws IOException
+	public void iterateLemmas()
 	{
 		jwi.tryForAllLemmas((String l) -> {
 		});
 	}
 
 	@Test
-	public void iterateSenses() throws IOException
+	public void iterateSenses()
 	{
 		jwi.tryForAllSenses((IWord s) -> {
 		});
 	}
 
 	@Test
-	public void iterateSynsets() throws IOException
+	public void iterateSynsets()
 	{
 		jwi.tryForAllSynsets((ISynset s) -> {
 		});

@@ -2,14 +2,13 @@ package org.jwi.use;
 
 import org.junit.jupiter.api.Test;
 
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 
-public class TestComparators
+public class ComparatorsTests
 {
 	static private final String[] elements = {"aborigine1", "aborigine2", "Aborigine1", "Aborigine2"};
 	static private final String[] elements2 = {"Aborigine1", "Aborigine2", "aborigine1", "aborigine2"};

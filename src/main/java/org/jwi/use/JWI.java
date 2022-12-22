@@ -27,6 +27,7 @@ public class JWI
 	public JWI(final String wnHome) throws IOException
 	{
 		this.wnHome = wnHome;
+		System.out.printf("FROM %s%n", wnHome);
 
 		// construct the URL to the WordNet dictionary directory
 		URL url = new File(wnHome).toURI().toURL();
@@ -370,6 +371,47 @@ public class JWI
 		}
 	}
 
+	// S E N S E   E X P L O R A T I O N
+
+	public void forAllSenseIDs(final String lemma, final Consumer<IWordID> f)
+	{
+		for (final POS pos : POS.values())
+		{
+			final IIndexWord idx = this.dict.getIndexWord(lemma, pos);
+			if (idx != null)
+			{
+				final List<IWordID> senseids = idx.getWordIDs();
+				for (final IWordID senseid : senseids) // synset id, sense number, and lemma
+				{
+					if (f != null)
+					{
+						f.accept(senseid);
+					}
+				}
+			}
+		}
+	}
+
+	public void forAllSenses(final String lemma, final Consumer<IWord> f)
+	{
+		for (final POS pos : POS.values())
+		{
+			final IIndexWord idx = this.dict.getIndexWord(lemma, pos);
+			if (idx != null)
+			{
+				final List<IWordID> senseids = idx.getWordIDs();
+				for (final IWordID senseid : senseids) // synset id, sense number, and lemma
+				{
+					IWord sense = this.dict.getWord(senseid);
+					if (f != null)
+					{
+						f.accept(sense);
+					}
+				}
+			}
+		}
+	}
+
 	public void forAllSensekeys(final Consumer<ISenseKey> f)
 	{
 		for (final POS pos : POS.values())
@@ -427,47 +469,6 @@ public class JWI
 					catch (Exception e)
 					{
 						System.err.println(senseid + " " + e.getMessage());
-					}
-				}
-			}
-		}
-	}
-
-	// S E N S E   E X P L O R A T I O N
-
-	public void forAllSenseIDs(final String lemma, final Consumer<IWordID> f)
-	{
-		for (final POS pos : POS.values())
-		{
-			final IIndexWord idx = this.dict.getIndexWord(lemma, pos);
-			if (idx != null)
-			{
-				final List<IWordID> senseids = idx.getWordIDs();
-				for (final IWordID senseid : senseids) // synset id, sense number, and lemma
-				{
-					if (f != null)
-					{
-						f.accept(senseid);
-					}
-				}
-			}
-		}
-	}
-
-	public void forAllSenses(final String lemma, final Consumer<IWord> f)
-	{
-		for (final POS pos : POS.values())
-		{
-			final IIndexWord idx = this.dict.getIndexWord(lemma, pos);
-			if (idx != null)
-			{
-				final List<IWordID> senseids = idx.getWordIDs();
-				for (final IWordID senseid : senseids) // synset id, sense number, and lemma
-				{
-					IWord sense = this.dict.getWord(senseid);
-					if (f != null)
-					{
-						f.accept(sense);
 					}
 				}
 			}

@@ -1,31 +1,27 @@
 package org.jwi.use;
 
 import org.junit.jupiter.api.BeforeAll;
-
 import org.junit.jupiter.api.Test;
-
 
 import java.io.IOException;
 
-import edu.mit.jwi.item.ISenseEntry;
-import edu.mit.jwi.item.ISenseKey;
-import edu.mit.jwi.item.ISynset;
-import edu.mit.jwi.item.IWord;
-
-public class TestJWI
+public class JWITests
 {
+	private static String word;
+
 	private static JWI jwi;
 
 	@BeforeAll
 	public static void init() throws IOException
 	{
+		word = System.getProperty("WORD");
 		String wnHome = System.getProperty("SOURCE");
 		jwi = new JWI(wnHome);
 	}
 
 	@Test
-	public void walkSpread() throws IOException
+	public void walkWord()
 	{
-		jwi.walk("spread");
+		jwi.walk(word);
 	}
 }
