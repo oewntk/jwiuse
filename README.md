@@ -11,7 +11,7 @@ This presents an API layer above JWI.
 See test classes for usage and samples.
 
 GroupID and ArtifactID on Maven Central:
-	
+
 	<groupId>io.github.oewntk</groupId>
 	<artifactId>jwiuse</artifactId>
 	<packaging>jar</packaging>
